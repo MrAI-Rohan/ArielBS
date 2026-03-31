@@ -1,0 +1,50 @@
+# See if the model is learning at all by training for 5 epochs and checking if the validation IoU improves.
+
+experiment_name: unet_resnet34_5_epochs
+seed: 42
+precision: 16
+platform: colab
+
+model:
+  name: unet
+  encoder: resnet34
+  pretrained: true
+
+data:
+  dataset: whu
+  patch_size: 256
+  train_batch_size: 64
+  val_batch_size: 128
+  samples_per_epoch: 6000
+  train_transform:
+    hflip: 0.5
+    vflip: 0.5
+    rotate90: 0.5
+    brightness_contrast: 0.3
+    gauss_noise: 0.2
+  val_transform: false
+  shuffle: true
+
+training:
+  epochs: 5
+  lr: 1e-4
+  progress_bar: false
+
+optimizer:
+  name: radam
+  params:
+    weight_decay: 0.0001
+
+scheduler:
+  name: reduce_on_plateau
+  params:
+    factor: 0.2
+    patience: 5
+    mode: max
+  monitor: val_iou
+
+loss:
+  name: bce_dice
+
+logging:
+  project: ArielBS
