@@ -22,6 +22,7 @@ def build_scheduler(optimizer, config):
         return lr_scheduler.CosineAnnealingLR(
             optimizer,
             T_max=config["training"]["epochs"]
+            **params
         )
 
     elif name == "none":

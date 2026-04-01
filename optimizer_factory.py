@@ -4,7 +4,6 @@ import torch.optim as optim
 def build_optimizer(param_groups, config):
     opt_config = config["optimizer"]
     params = opt_config["params"]
-
     name = opt_config["name"].lower()
 
     if name == "adam":

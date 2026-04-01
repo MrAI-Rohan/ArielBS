@@ -1,0 +1,58 @@
+# Set very low lr for encoder to see if loss is smoother and if it helps with convergence in UNet with ResNet34 backbone.
+# Mistake: trained on resnet50 instead of resnet34, but will keep it as is for now.
+
+experiment_name: unet_resnet34_vanilla_low_lr
+seed: 42
+precision: 16
+platform: colab
+
+model:
+  name: unet
+  encoder: resnet50
+  pretrained: true
+
+data:
+  dataset: whu
+  patch_size: 256
+  train_batch_size: 64
+  val_batch_size: 128
+  samples_per_epoch: 8000
+  train_transform:
+    hflip: 0.5
+    vflip: 0.5
+    rotate90: 0.5
+    brightness_contrast: 0.3
+    gauss_noise: 0.2
+  val_transform: false
+  shuffle: true
+
+training:
+  epochs: 150
+  encoder_lr: 5e-5
+  decoder_lr: 1e-4
+  progress_bar: false
+
+early_stopping:
+  monitor: val_iou
+  patience: 30
+  mode: max
+
+optimizer:
+  name: radam
+  params:
+    weight_decay: 0.0001
+
+scheduler:
+  name: reduce_on_plateau
+  params:
+    factor: 0.5
+    patience: 10
+    mode: max
+    min_lr: 5e-7
+  monitor: val_iou
+
+loss:
+  name: bce_dice
+
+logging:
+  project: ArielBS

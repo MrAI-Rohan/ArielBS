@@ -4,6 +4,7 @@ import torch
 import torch.nn.functional as F
 import pytorch_lightning as pl
 
+from utils import convert_numerics
 from model_factory import build_model
 from loss_functions import get_loss_function
 from optimizer_factory import build_optimizer
@@ -54,7 +55,10 @@ class SegmentationModule(pl.LightningModule):
 
     def configure_optimizers(self):
         encoder_params = list(self.model.encoder.parameters())
-        decoder_params = list(self.model.decoder.parameters())
+        decoder_params = decoder_params = (
+            list(self.model.decoder.parameters()) +
+            list(self.model.segmentation_head.parameters())
+        )
 
         encoder_lr = float(self.config['training']['encoder_lr'])
         decoder_lr = float(self.config['training']['decoder_lr'])
@@ -101,6 +105,17 @@ class SegmentationModule(pl.LightningModule):
         self.log("encoder_lr", encoder_lr, on_epoch=True)
         self.log("decoder_lr", decoder_lr, on_epoch=True)
     
+    def on_load_checkpoint(self, checkpoint):
+        fixed = convert_numerics(checkpoint)
+        checkpoint.clear()
+        checkpoint.update(fixed)
+    
+    def on_before_optimizer_step(self, optimizer):
+        grad_norm = torch.nn.utils.get_total_norm(
+            [p for p in self.model.parameters() if p.grad is not None]
+        )
+        self.log('train_grad_norm', grad_norm, on_step=True, on_epoch=False)
+    
     def compute_iou(self, preds, targets, threshold=0.5, smooth=1e-6):
         preds = torch.sigmoid(preds)
         preds = (preds > threshold).float()
@@ -137,6 +152,9 @@ class SegmentationModule(pl.LightningModule):
 
 
     def log_images(self, images, masks, preds):
+        mean = torch.tensor([0.485, 0.456, 0.406]).view(3, 1, 1)
+        std = torch.tensor([0.229, 0.224, 0.225]).view(3, 1, 1)
+
         preds = torch.sigmoid(preds)
         preds = (preds > 0.5).float()
 
@@ -147,7 +165,8 @@ class SegmentationModule(pl.LightningModule):
         log_list = []
 
         for i in range(min(3, images.shape[0])):
-            img = images[i]
+            img = images[i] * std + mean
+            img = img.clamp(0, 1)
             gt = masks[i]
             pr = preds[i]
 

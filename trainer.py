@@ -6,12 +6,15 @@ import pytorch_lightning as pl
 from pytorch_lightning.loggers import WandbLogger
 from pytorch_lightning.callbacks import ModelCheckpoint, EarlyStopping
 
+from utils import convert_numerics
 from training_module import SegmentationModule
 from data.datamodule import WHUDataModule
 
 def load_config(path):
     with open(path, "r") as f:
-        return yaml.safe_load(f)
+        config = yaml.safe_load(f)
+    # Recursively convert string numeric values to floats
+    return convert_numerics(config)
 
 
 def main(params=None):
@@ -91,6 +94,7 @@ def main(params=None):
         callbacks=callbacks,
         log_every_n_steps=10,
         enable_progress_bar=config["training"]["progress_bar"],
+        gradient_clip_val=config["training"].get("gradient_clip_val", 1.0)
     )
 
     trainer.fit(model, datamodule, ckpt_path=args.resume)
