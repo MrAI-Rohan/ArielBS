@@ -4,7 +4,7 @@ from .transforms import build_transforms
 from .dataset import WHUDataset, WHUValDataset, BuildingDataset
 
 def build_dataset(data_cfg, train_h5, val_h5,):
-    dataset_name = data_cfg["data"]["dataset"]
+    dataset_name = data_cfg["dataset"]
 
     train_transform = build_transforms(data_cfg["train_transform"])
     val_transform = build_transforms(data_cfg["val_transform"])
