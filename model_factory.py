@@ -2,10 +2,19 @@ import segmentation_models_pytorch as smp
 
 
 def build_model(config):
-    if config["model"]["name"] == "unet":
-        return smp.Unet(
-                encoder_name=config["model"]["encoder"],
-                encoder_weights="imagenet" if config["model"]["pretrained"] else None,
+    model_cfg = config["model"]
+    if model_cfg["name"] == "unet":
+        if model_cfg["encoder"] == "tu-seresnet34":
+            return smp.Unet(
+                encoder_name=model_cfg["encoder"],
+                encoder_weights=None,
                 in_channels=3,
                 classes=1
             )
+
+        return smp.Unet(
+                encoder_name=model_cfg["encoder"],
+                encoder_weights="imagenet" if model_cfg.get("pretrained", False) else None,
+                in_channels=3,
+                classes=1
+            )  

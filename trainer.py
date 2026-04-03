@@ -74,7 +74,7 @@ def main(params=None):
 
     # Early stopping
     callbacks = [best_checkpoint, last_checkpoint]
-    if "early_stopping" in config:
+    if config.get("early_stopping", False):
         early_stopping = EarlyStopping(
             monitor=config["early_stopping"]["monitor"],
             patience=config["early_stopping"]["patience"],

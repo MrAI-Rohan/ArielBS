@@ -75,3 +75,33 @@ class WHUValDataset(Dataset):
         mask = (mask > 0).float().unsqueeze(0)
 
         return image, mask
+
+class BuildingDataset(Dataset):
+    def __init__(self, h5_path, transform=None,):
+        self.h5_file = h5_path
+        self.file = None
+        self.transform = transform
+        with h5py.File(self.h5_file, "r") as f:
+            self.length = len(f["images"])
+    
+    def __len__(self):
+        return self.length
+    
+    def __getitem__(self, idx):
+        if self.file is None:
+            self.file = h5py.File(self.h5_file, "r")
+
+        image = self.file["images"][idx]
+        mask = self.file["masks"][idx]
+
+        if self.transform:
+            augmented = self.transform(image=image, mask=mask)
+            image = augmented["image"]
+            mask = augmented["mask"]
+
+        # mask to 0/1
+        mask = (mask > 0).float().unsqueeze(0)
+
+        return image, mask
+
+

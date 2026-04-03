@@ -5,8 +5,7 @@ from albumentations.pytorch import ToTensorV2
 import pytorch_lightning as pl
 from torch.utils.data import DataLoader
 
-from .dataset import WHUDataset, WHUValDataset
-from .transforms import build_transforms
+from .dataset_factory import build_dataset
 
 class WHUDataModule(pl.LightningDataModule):
     def __init__(self, config, train_h5, val_h5):
@@ -14,31 +13,23 @@ class WHUDataModule(pl.LightningDataModule):
         self.config = config
         self.train_h5 = train_h5
         self.val_h5 = val_h5
-
-        train_transform_cfg = config["data"]["train_transform"]
-        valid_transform_cfg = config["data"]["val_transform"]
-        self.train_transform = build_transforms(train_transform_cfg)
-        self.val_transform = build_transforms(valid_transform_cfg)
+        self.data_cfg = config["data"]
 
         self.num_workers = self.config.get("num_workers", self.get_num_workers(config))
 
     def setup(self, stage=None):
-        self.train_dataset = WHUDataset(h5_path=self.train_h5,
-                                        transform=self.train_transform,
-                                        patch_size=self.config["data"]["patch_size"],
-                                        samples_per_epoch=self.config["data"]["samples_per_epoch"]
-                                        )
-        
-        self.val_dataset = WHUValDataset(h5_path=self.val_h5,
-                                      transform=self.val_transform,
-                                      )
+        self.train_dataset, self.val_dataset = build_dataset(
+            self.data_cfg,
+            train_h5=self.train_h5,
+            val_h5=self.val_h5,
+        )
 
     def train_dataloader(self):
         return DataLoader(
             self.train_dataset,
-            batch_size=self.config["data"]["train_batch_size"],
+            batch_size=self.data_cfg["train_batch_size"],
             num_workers=self.num_workers,
-            shuffle=self.config["data"]["shuffle"],
+            shuffle=self.data_cfg["shuffle"],
             pin_memory=True,
             persistent_workers=True,
             prefetch_factor=2
@@ -47,7 +38,7 @@ class WHUDataModule(pl.LightningDataModule):
     def val_dataloader(self):
         return DataLoader(
             self.val_dataset,
-            batch_size=self.config["data"]["val_batch_size"],
+            batch_size=self.data_cfg["val_batch_size"],
             num_workers=self.num_workers,
             shuffle=False,
             pin_memory=True,
