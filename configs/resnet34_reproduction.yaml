@@ -16,7 +16,7 @@ data:
   train_batch_size: 64
   val_batch_size: 128
   train_transform:
-  resize: true
+    resize: true
     hflip: 0.5
     vflip: 0.5
     rotate90: 0.5
