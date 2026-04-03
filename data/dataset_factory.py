@@ -1,7 +1,7 @@
 from torch.utils.data import ConcatDataset
 
-from transforms import build_transforms
-from dataset import WHUDataset, WHUValDataset, BuildingDataset
+from .transforms import build_transforms
+from .dataset import WHUDataset, WHUValDataset, BuildingDataset
 
 def build_dataset(data_cfg, train_h5, val_h5,):
     dataset_name = data_cfg["data"]["dataset"]
