@@ -2,8 +2,11 @@ import albumentations as A
 from albumentations.pytorch import ToTensorV2
 
 
-def build_transforms(data_cfg):
-    transform_cfg = data_cfg.get("transforms", None)
+def build_transforms(data_cfg, mode):
+    if mode not in ["train", "val"]:
+        raise ValueError(f"Invalid mode: {mode}. Must be 'train' or 'val'.")
+
+    transform_cfg = data_cfg.get(f"{mode}_transform", None)
     if transform_cfg in [None, False]:
         return A.Compose([
             A.Normalize(
@@ -32,8 +35,8 @@ def build_transforms(data_cfg):
     for name, prob in transform_cfg.items():
         if name == "resize" and prob:
             sz = data_cfg["patch_size"]
-            transforms.append(transform_map[name](height=sz, width=sz))
-        if name in transform_map and isinstance(prob, (int, float)) and prob > 0:
+            transforms.append(transform_map[name](height=sz, width=sz, p=1.0))
+        elif name in transform_map and isinstance(prob, (int, float)) and prob > 0:
             transforms.append(transform_map[name](p=prob))
 
     # Always normalize + tensor

@@ -6,8 +6,8 @@ from .dataset import WHUDataset, WHUValDataset, BuildingDataset
 def build_dataset(data_cfg, train_h5, val_h5,):
     dataset_name = data_cfg["dataset"]
 
-    train_transform = build_transforms(data_cfg["train_transform"])
-    val_transform = build_transforms(data_cfg["val_transform"])
+    train_transform = build_transforms(data_cfg, mode="train")
+    val_transform = build_transforms(data_cfg, mode="val")
 
     if dataset_name == "whu":
         train_dataset = WHUDataset(h5_path=train_h5,
