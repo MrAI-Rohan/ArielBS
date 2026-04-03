@@ -21,14 +21,14 @@ def build_dataset(data_cfg, train_h5, val_h5,):
                                       )
         
     elif dataset_name == "reproduction":
-        train_dataset1 = BuildingDataset(h5_path=train_h5/"re1_train.h5",
+        train_dataset1 = BuildingDataset(h5_path=train_h5+"/re1_train.h5",
                                          transform=train_transform,)
-        train_dataset2 = BuildingDataset(h5_path=train_h5/"re2_train.h5",
+        train_dataset2 = BuildingDataset(h5_path=train_h5+"/re2_train.h5",
                                          transform=train_transform,)
         
-        val_dataset1 = BuildingDataset(h5_path=val_h5/"re1_val.h5",
+        val_dataset1 = BuildingDataset(h5_path=val_h5+"/re1_val.h5",
                                        transform=val_transform,)
-        val_dataset2 = BuildingDataset(h5_path=val_h5/"re2_val.h5",
+        val_dataset2 = BuildingDataset(h5_path=val_h5+"/re2_val.h5",
                                        transform=val_transform,)
         
         train_dataset = ConcatDataset([train_dataset1, train_dataset2])
