@@ -1,6 +1,6 @@
-# Reproducing paper results with 46k samples.
+# Added proper normalization.
 
-experiment_name: seresnet34_re_whole_data
+experiment_name: seresnet34_re_normalization
 seed: 42
 precision: 16
 platform: colab
@@ -21,10 +21,12 @@ data:
     vflip: 0.5
     rotate90: 0.5
     gauss_noise: 0.3
+    blur: 0.3
   val_transform:
     resize: true
   shuffle: true
   samples_per_epoch: 46545
+  normalization: standard
 
 training:
   epochs: 150

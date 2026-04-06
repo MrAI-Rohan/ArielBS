@@ -1,14 +1,14 @@
-# Reproducing paper results with 46k samples.
+# Train pretrained ResNet34 on 46k samples.
 
-experiment_name: seresnet34_re_whole_data
+experiment_name: resnet34_re_whole_data
 seed: 42
 precision: 16
 platform: colab
-num_workers: 4
 
 model:
   name: unet
-  encoder: tu-seresnet34
+  encoder: resnet34
+  pretrained: true
 
 data:
   dataset: reproduction
@@ -20,20 +20,24 @@ data:
     hflip: 0.5
     vflip: 0.5
     rotate90: 0.5
-    gauss_noise: 0.3
+    brightness_contrast: 0.3
+    gauss_noise: 0.2
   val_transform:
     resize: true
   shuffle: true
   samples_per_epoch: 46545
+  normalization: imagenet
 
 training:
   epochs: 150
-  encoder_lr: 0.005
-  decoder_lr: 0.005
+  encoder_lr: 1e-4
+  decoder_lr: 1e-4
   progress_bar: false
-  gradient_clip_val: 0
 
-early_stopping: false
+early_stopping:
+  monitor: val_iou
+  patience: 30
+  mode: max
 
 optimizer:
   name: radam
@@ -43,10 +47,10 @@ optimizer:
 scheduler:
   name: reduce_on_plateau
   params:
-    factor: 0.2
-    patience: 5
+    factor: 0.5
+    patience: 10
     mode: max
-    min_lr: 0
+    min_lr: 1e-6
   monitor: val_iou
 
 loss:

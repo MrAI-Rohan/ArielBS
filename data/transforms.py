@@ -5,15 +5,23 @@ from albumentations.pytorch import ToTensorV2
 def build_transforms(data_cfg, mode):
     if mode not in ["train", "val"]:
         raise ValueError(f"Invalid mode: {mode}. Must be 'train' or 'val'.")
-
+    
+    normalization = data_cfg.get("normalization", "imagenet")
+    if normalization == "imagenet":
+        normalize = A.Normalize(
+            mean=(0.485, 0.456, 0.406),
+            std=(0.229, 0.224, 0.225)
+        )
+    elif normalization == "standard":
+        normalize = A.Normalize(
+            mean=(0.5, 0.5, 0.5),
+            std=(1.0, 1.0, 1.0),
+            max_pixel_value=255.0
+        )
     transform_cfg = data_cfg.get(f"{mode}_transform", None)
     if transform_cfg in [None, False]:
         return A.Compose([
-            A.Normalize(
-                mean=(0.485, 0.456, 0.406),
-                std=(0.229, 0.224, 0.225)
-            ),
-
+            normalize,
             ToTensorV2()
         ])
 
@@ -40,12 +48,7 @@ def build_transforms(data_cfg, mode):
             transforms.append(transform_map[name](p=prob))
 
     # Always normalize + tensor
-    transforms.append(
-        A.Normalize(
-            mean=(0.485, 0.456, 0.406),
-            std=(0.229, 0.224, 0.225)
-        )
-    )
+    transforms.append(normalize)
 
     transforms.append(ToTensorV2())
 
