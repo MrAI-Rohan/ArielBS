@@ -76,20 +76,29 @@ class WHUValDataset(Dataset):
 
         return image, mask
 
+
 class BuildingDataset(Dataset):
-    def __init__(self, h5_path, transform=None,):
+    def __init__(self, h5_path, transform=None, samples_per_epoch=None):
         self.h5_file = h5_path
         self.file = None
         self.transform = transform
+        self.samples_per_epoch = samples_per_epoch
+
         with h5py.File(self.h5_file, "r") as f:
-            self.length = len(f["images"])
-    
+            self.real_length = len(f["images"])
+
     def __len__(self):
-        return self.length
-    
+        if self.samples_per_epoch is None:
+            return self.real_length
+        return self.samples_per_epoch
+
     def __getitem__(self, idx):
         if self.file is None:
             self.file = h5py.File(self.h5_file, "r")
+
+        # If samples_per_epoch is set → random sampling
+        if self.samples_per_epoch is not None:
+            idx = random.randint(0, self.real_length - 1)
 
         image = self.file["images"][idx]
         mask = self.file["masks"][idx]

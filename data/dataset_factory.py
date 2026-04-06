@@ -9,6 +9,8 @@ def build_dataset(data_cfg, train_h5, val_h5,):
     train_transform = build_transforms(data_cfg, mode="train")
     val_transform = build_transforms(data_cfg, mode="val")
 
+    samples_per_epoch = data_cfg.get("samples_per_epoch", None)
+
     if dataset_name == "whu":
         train_dataset = WHUDataset(h5_path=train_h5,
                                     transform=train_transform,
@@ -22,9 +24,11 @@ def build_dataset(data_cfg, train_h5, val_h5,):
         
     elif dataset_name == "reproduction":
         train_dataset1 = BuildingDataset(h5_path=train_h5+"/re1_train.h5",
-                                         transform=train_transform,)
+                                         transform=train_transform,
+                                         samples_per_epoch=samples_per_epoch)
         train_dataset2 = BuildingDataset(h5_path=train_h5+"/re2_train.h5",
-                                         transform=train_transform,)
+                                         transform=train_transform,
+                                         samples_per_epoch=samples_per_epoch)
         
         val_dataset1 = BuildingDataset(h5_path=val_h5+"/re1_val.h5",
                                        transform=val_transform,)
