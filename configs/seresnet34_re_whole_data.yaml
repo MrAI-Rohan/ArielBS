@@ -4,6 +4,7 @@ experiment_name: seresnet34_re_whole_data
 seed: 42
 precision: 16
 platform: colab
+num_workers: 4
 
 model:
   name: unet
