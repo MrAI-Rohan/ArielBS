@@ -1,3 +1,4 @@
+import h5py
 from torch.utils.data import ConcatDataset
 
 from .transforms import build_transforms
@@ -23,12 +24,24 @@ def build_dataset(data_cfg, train_h5, val_h5,):
                                       )
         
     elif dataset_name == "reproduction":
+        if not samples_per_epoch:
+            s1 = None
+            s2 = None
+        else:
+            with h5py.File(train_h5+"/re1_train.h5", "r") as f:
+                len1 = len(f["images"])
+            with h5py.File(train_h5+"/re2_train.h5", "r") as f:
+                len2 = len(f["images"])
+            total = len1 + len2
+            s1 = int(samples_per_epoch * len1 / total)
+            s2 = samples_per_epoch - s1
+        
         train_dataset1 = BuildingDataset(h5_path=train_h5+"/re1_train.h5",
                                          transform=train_transform,
-                                         samples_per_epoch=samples_per_epoch)
+                                         samples_per_epoch=s1)
         train_dataset2 = BuildingDataset(h5_path=train_h5+"/re2_train.h5",
                                          transform=train_transform,
-                                         samples_per_epoch=samples_per_epoch)
+                                         samples_per_epoch=s2)
         
         val_dataset1 = BuildingDataset(h5_path=val_h5+"/re1_val.h5",
                                        transform=val_transform,)
