@@ -15,7 +15,7 @@ from training_module import SegmentationModule
 from utils import make_predictions, compute_metrics
 
 
-def load_data(h5_path, patch_size,  batch_size, transform=None, num_workers=2):
+def load_data(h5_path, patch_size,  batch_size, transform=None, num_workers=0):
     dataset = TiledDataset(h5_path, patch_size=patch_size, transform=transform)
     dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers)
     return dataloader
@@ -163,14 +163,23 @@ def main():
     mas = load_data(h5_path/"massachusetts.h5", patch_size=args.patch_size, 
                         batch_size=args.batch_size, transform=transform)
     counts_mas = run_single_dataset(mas, model, h5_path/"massachusetts.h5")
+    del mas
+    torch.cuda.empty_cache()
+    gc.collect()
 
     whu_test = load_data(h5_path/"whu_test.h5", patch_size=args.patch_size, 
                         batch_size=args.batch_size, transform=transform)
     counts_whu = run_single_dataset(whu_test, model, h5_path/"whu_test.h5")
+    del whu_test
+    torch.cuda.empty_cache()
+    gc.collect()
 
     zanzibar = load_data(h5_path/"zanzibar.h5", patch_size=args.patch_size, 
                         batch_size=args.batch_size, transform=transform)
     counts_zanzibar = run_single_dataset(zanzibar, model, h5_path/"zanzibar.h5")
+    del zanzibar
+    torch.cuda.empty_cache()
+    gc.collect()
 
     results = evaluate_datasets( 
         [counts_mas, counts_whu, counts_zanzibar],
