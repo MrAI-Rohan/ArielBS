@@ -1,6 +1,6 @@
 import gc
-import tqdm
 import torch
+from tqdm import tqdm
 
 
 def convert_numerics(obj):
