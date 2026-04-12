@@ -191,8 +191,15 @@ def main():
         dataset_names=["Massachusetts", "Zanzibar"]
     )
 
-    save_results_to_csv(results,)
-    save_results_to_csv(results2, config_name="mz_benchmark.csv")
+    try:
+        save_results_to_csv(results, config_name=ckpt_path.stem, )
+        save_results_to_csv(results2, config_name=ckpt_path.stem, config_name="mz_benchmark.csv")
+    except Exception as e:
+        print(f"Error saving results to CSV: {e}")
+        print("Results:")
+        print(results)
+        print(results2)
+    
 
 
 
