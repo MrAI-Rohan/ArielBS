@@ -88,7 +88,7 @@ def evaluate_datasets(counts_list, dataset_names=None):
         "aggregate": aggregate
     }
 
-def run_single_dataset(model, loader, h5_path):
+def run_single_dataset(loader, model, h5_path):
     final_preds = make_predictions(loader, model)
 
     counts = benchmark_counts(final_preds, h5_path)
