@@ -96,7 +96,7 @@ def run_single_dataset(loader, model, h5_path):
     # cleanup memory
     loader.dataset.close()  # close h5 file
     del final_preds
-    del dataset
+    del loader
 
     torch.cuda.empty_cache()
     gc.collect()
