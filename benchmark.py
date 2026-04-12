@@ -176,7 +176,14 @@ def main():
         dataset_names=["Massachusetts", "WHU Test", "Zanzibar"]
     )
 
-    save_results_to_csv(results, config_name=args.ckpt_path.stem)
+    results2 = evaluate_datasets( 
+        [counts_mas, counts_zanzibar],
+        dataset_names=["Massachusetts", "Zanzibar"]
+    )
+
+    save_results_to_csv(results,)
+    save_results_to_csv(results2, config_name="mz_benchmark.csv")
+
 
 
 if __name__ == "__main__":
