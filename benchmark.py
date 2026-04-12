@@ -192,8 +192,8 @@ def main():
     )
 
     try:
-        save_results_to_csv(results, config_name=ckpt_path.stem, )
-        save_results_to_csv(results2, config_name=ckpt_path.stem, config_name="mz_benchmark.csv")
+        save_results_to_csv(results, config_name=ckpt_path.stem, csv_path="benchmark_results.csv")
+        save_results_to_csv(results2, config_name=ckpt_path.stem, csv_path="mz_benchmark.csv")
     except Exception as e:
         print(f"Error saving results to CSV: {e}")
         print("Results:")
