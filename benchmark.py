@@ -147,6 +147,7 @@ def main():
     parser.add_argument("--normalization", type=str, default="imagenet", help="Normalization method (imagenet, standard).")
     args = parser.parse_args()
 
+    h5_path = Path(args.h5_path)
     ckpt_path = Path(args.ckpt_path)
     if not ckpt_path.exists():
         print(f"Checkpoint path {ckpt_path} does not exist.")
@@ -159,17 +160,17 @@ def main():
     }
     transform = build_transforms(data_cfg, mode="val")
 
-    mas = load_data(args.h5_path/"massachusetts.h5", patch_size=args.patch_size, 
+    mas = load_data(h5_path/"massachusetts.h5", patch_size=args.patch_size, 
                         batch_size=args.batch_size, transform=transform)
-    counts_mas = run_single_dataset(mas, model, args.h5_path/"massachusetts.h5")
+    counts_mas = run_single_dataset(mas, model, h5_path/"massachusetts.h5")
 
-    whu_test = load_data(args.h5_path/"whu_test.h5", patch_size=args.patch_size, 
+    whu_test = load_data(h5_path/"whu_test.h5", patch_size=args.patch_size, 
                         batch_size=args.batch_size, transform=transform)
-    counts_whu = run_single_dataset(whu_test, model, args.h5_path/"whu_test.h5")
+    counts_whu = run_single_dataset(whu_test, model, h5_path/"whu_test.h5")
 
-    zanzibar = load_data(args.h5_path/"zanzibar.h5", patch_size=args.patch_size, 
+    zanzibar = load_data(h5_path/"zanzibar.h5", patch_size=args.patch_size, 
                         batch_size=args.batch_size, transform=transform)
-    counts_zanzibar = run_single_dataset(zanzibar, model, args.h5_path/"zanzibar.h5")
+    counts_zanzibar = run_single_dataset(zanzibar, model, h5_path/"zanzibar.h5")
 
     results = evaluate_datasets( 
         [counts_mas, counts_whu, counts_zanzibar],
