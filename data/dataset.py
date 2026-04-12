@@ -2,6 +2,7 @@ import cv2
 import h5py
 import random
 from pathlib import Path
+import numpy as np
 from torch.utils.data import Dataset
 
 from .data_utils import sample_patch
