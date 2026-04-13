@@ -135,6 +135,9 @@ def save_results_to_csv(results, config_name, csv_path="benchmark_results.csv"):
         df = pd.concat([df_old, df_new], ignore_index=True)
     else:
         df = df_new
+    
+    print(f"Saving results to {csv_path}:\n{df_new}")
+    print(os.path.exists(csv_path))
 
     df.to_csv(csv_path, index=False)
 
