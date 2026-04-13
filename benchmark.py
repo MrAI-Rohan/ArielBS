@@ -160,17 +160,20 @@ def main():
     }
     transform = build_transforms(data_cfg, mode="val")
 
-    mas = load_data(h5_path/"massachusetts.h5", patch_size=args.patch_size, 
-                        batch_size=args.batch_size, transform=transform)
-    counts_mas = run_single_dataset(mas, model, h5_path/"massachusetts.h5")
-    del mas
-    torch.cuda.empty_cache()
-    gc.collect()
-
     whu_test = load_data(h5_path/"whu_test.h5", patch_size=args.patch_size, 
                         batch_size=args.batch_size, transform=transform)
     counts_whu = run_single_dataset(whu_test, model, h5_path/"whu_test.h5")
     del whu_test
+    torch.cuda.empty_cache()
+    gc.collect()
+
+    results0 = evaluate_datasets([counts_whu], dataset_names=["WHU Test"])
+    save_results_to_csv(results0, config_name=ckpt_path.stem, csv_path="whu_benchmark.csv")
+
+    mas = load_data(h5_path/"massachusetts.h5", patch_size=args.patch_size, 
+                        batch_size=args.batch_size, transform=transform)
+    counts_mas = run_single_dataset(mas, model, h5_path/"massachusetts.h5")
+    del mas
     torch.cuda.empty_cache()
     gc.collect()
 
@@ -199,8 +202,6 @@ def main():
         print("Results:")
         print(results)
         print(results2)
-    
-
 
 
 if __name__ == "__main__":
