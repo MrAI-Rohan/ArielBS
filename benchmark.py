@@ -94,7 +94,7 @@ def run_single_dataset(loader, model, h5_path):
     counts = benchmark_counts(final_preds, h5_path)
 
     # cleanup memory
-    loader.dataset.close()  # close h5 file
+    # loader.dataset.close()  # close h5 file
     del final_preds
     del loader
 
