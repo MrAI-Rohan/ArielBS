@@ -115,7 +115,7 @@ class BuildingDataset(Dataset):
         return image, mask
 
 class TiledDataset(Dataset):
-    def __init__(self, h5_path, patch_size=256, stride=None, transform=None):
+    def __init__(self, h5_path, patch_size, stride=None, transform=None):
         self.h5_path = h5_path
         self.patch_size = patch_size
         self.stride = stride if stride else patch_size//2
