@@ -186,6 +186,7 @@ def main():
     del zanzibar
     torch.cuda.empty_cache()
     gc.collect()
+    print(1)
 
     # results = evaluate_datasets( 
     #     [counts_mas, counts_whu, counts_zanzibar],
@@ -197,9 +198,13 @@ def main():
         dataset_names=["WHU Test", "Zanzibar"]
     )
 
+    print(2)
+
     try:
+        print(3)
         # save_results_to_csv(results, config_name=ckpt_path.stem, csv_path="benchmark_results.csv")
         save_results_to_csv(results2, config_name=ckpt_path.stem, csv_path="mz_benchmark.csv")
+        print(4)
     except Exception as e:
         print(f"Error saving results to CSV: {e}")
         print("Results:")
@@ -209,3 +214,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    print(5)
