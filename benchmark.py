@@ -182,9 +182,13 @@ def main():
 
     zanzibar = load_data(h5_path/"zanzibar.h5", patch_size=args.patch_size, 
                         batch_size=args.batch_size, transform=transform)
+    print(10)
     counts_zanzibar = run_single_dataset(zanzibar, model, h5_path/"zanzibar.h5")
+    print(11)
     del zanzibar
+    print(12)
     torch.cuda.empty_cache()
+    print(13)
     gc.collect()
     print(1)
 
