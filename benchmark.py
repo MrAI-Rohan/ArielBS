@@ -173,12 +173,12 @@ def main():
     results0 = evaluate_datasets([counts_whu], dataset_names=["WHU Test"])
     save_results_to_csv(results0, config_name=ckpt_path.stem, csv_path="whu_benchmark.csv")
 
-    mas = load_data(h5_path/"massachusetts.h5", patch_size=args.patch_size, 
-                        batch_size=args.batch_size, transform=transform)
-    counts_mas = run_single_dataset(mas, model, h5_path/"massachusetts.h5")
-    del mas
-    torch.cuda.empty_cache()
-    gc.collect()
+    # mas = load_data(h5_path/"massachusetts.h5", patch_size=args.patch_size, 
+    #                     batch_size=args.batch_size, transform=transform)
+    # counts_mas = run_single_dataset(mas, model, h5_path/"massachusetts.h5")
+    # del mas
+    # torch.cuda.empty_cache()
+    # gc.collect()
 
     zanzibar = load_data(h5_path/"zanzibar.h5", patch_size=args.patch_size, 
                         batch_size=args.batch_size, transform=transform)
@@ -187,23 +187,23 @@ def main():
     torch.cuda.empty_cache()
     gc.collect()
 
-    results = evaluate_datasets( 
-        [counts_mas, counts_whu, counts_zanzibar],
-        dataset_names=["Massachusetts", "WHU Test", "Zanzibar"]
-    )
+    # results = evaluate_datasets( 
+    #     [counts_mas, counts_whu, counts_zanzibar],
+    #     dataset_names=["Massachusetts", "WHU Test", "Zanzibar"]
+    # )
 
     results2 = evaluate_datasets( 
-        [counts_mas, counts_zanzibar],
-        dataset_names=["Massachusetts", "Zanzibar"]
+        [counts_whu, counts_zanzibar],
+        dataset_names=["WHU Test", "Zanzibar"]
     )
 
     try:
-        save_results_to_csv(results, config_name=ckpt_path.stem, csv_path="benchmark_results.csv")
+        # save_results_to_csv(results, config_name=ckpt_path.stem, csv_path="benchmark_results.csv")
         save_results_to_csv(results2, config_name=ckpt_path.stem, csv_path="mz_benchmark.csv")
     except Exception as e:
         print(f"Error saving results to CSV: {e}")
         print("Results:")
-        print(results)
+        # print(results)
         print(results2)
 
 
