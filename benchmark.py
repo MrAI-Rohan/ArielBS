@@ -27,29 +27,6 @@ def load_model(ckpt_path, device="cuda"):
     model.eval()
     return model
 
-def benchmark_counts(final_preds, h5_path):
-    tp = 0
-    fp = 0
-    fn = 0
-    tn = 0
-
-    with h5py.File(h5_path, 'r') as f:
-        for img_idx, pred_mask in final_preds.items():
-            gt_mask = torch.tensor(f['masks'][img_idx]).float()
-
-            pred_mask = pred_mask.float()
-
-            tp += ((pred_mask == 1) & (gt_mask == 1)).sum().item()
-            fp += ((pred_mask == 1) & (gt_mask == 0)).sum().item()
-            fn += ((pred_mask == 0) & (gt_mask == 1)).sum().item()
-            tn += ((pred_mask == 0) & (gt_mask == 0)).sum().item()
-
-    return {
-        "tp": tp,
-        "fp": fp,
-        "fn": fn,
-        "tn": tn
-    }
 
 def make_predictions_and_count(loader, model, h5_path, patch_size):
     tp = fp = fn = tn = 0
@@ -160,16 +137,6 @@ def evaluate_datasets(counts_list, dataset_names=None):
         "aggregate": aggregate
     }
 
-def run_single_dataset(loader, model, h5_path, patch_size):
-    counts = make_predictions_and_count(loader, model, h5_path, patch_size)
-
-    # cleanup memory
-    loader.dataset.close()  # close h5 file
-    del loader
-    torch.cuda.empty_cache()
-    gc.collect()
-    return counts
-
 def save_results_to_csv(results, config_name, csv_path="benchmark_results.csv"):
     rows = []
 
@@ -198,13 +165,14 @@ def save_results_to_csv(results, config_name, csv_path="benchmark_results.csv"):
 
     # append or create
     if os.path.exists(csv_path):
-        df_old = pd.read_csv(csv_path)
-        df = pd.concat([df_old, df_new], ignore_index=True)
+        try:
+            df_old = pd.read_csv(csv_path)
+            df = pd.concat([df_old, df_new], ignore_index=True)
+        except pd.errors.EmptyDataError:
+            # file exists but is empty
+            df = df_new
     else:
         df = df_new
-    
-    print(f"Saving results to {csv_path}:\n{df_new}")
-    print(os.path.exists(csv_path))
 
     df.to_csv(csv_path, index=False)
 
@@ -237,15 +205,12 @@ def main():
     torch.cuda.empty_cache()
     gc.collect()
 
-    results0 = evaluate_datasets([counts_whu], dataset_names=["WHU Test"])
-    save_results_to_csv(results0, config_name=ckpt_path.stem, csv_path="whu_benchmark.csv")
-
-    # mas = load_data(h5_path/"massachusetts.h5", patch_size=args.patch_size, 
-    #                     batch_size=args.batch_size, transform=transform)
-    # counts_mas = make_predictions_and_count(mas, model, h5_path/"massachusetts.h5", patch_size=args.patch_size)
-    # del mas
-    # torch.cuda.empty_cache()
-    # gc.collect()
+    mas = load_data(h5_path/"massachusetts.h5", patch_size=args.patch_size, 
+                        batch_size=args.batch_size, transform=transform)
+    counts_mas = make_predictions_and_count(mas, model, h5_path/"massachusetts.h5", patch_size=args.patch_size)
+    del mas
+    torch.cuda.empty_cache()
+    gc.collect()
 
     zanzibar = load_data(h5_path/"zanzibar.h5", patch_size=args.patch_size, 
                         batch_size=args.batch_size, transform=transform)
@@ -254,10 +219,10 @@ def main():
     torch.cuda.empty_cache()
     gc.collect()
 
-    # results = evaluate_datasets( 
-    #     [counts_mas, counts_whu, counts_zanzibar],
-    #     dataset_names=["Massachusetts", "WHU Test", "Zanzibar"]
-    # )
+    results = evaluate_datasets( 
+        [counts_mas, counts_whu, counts_zanzibar],
+        dataset_names=["Massachusetts", "WHU Test", "Zanzibar"]
+    )
 
     results2 = evaluate_datasets( 
         [counts_whu, counts_zanzibar],
@@ -266,15 +231,14 @@ def main():
 
 
     try:
-        # save_results_to_csv(results, config_name=ckpt_path.stem, csv_path="benchmark_results.csv")
+        save_results_to_csv(results, config_name=ckpt_path.stem, csv_path="benchmark_results.csv")
         save_results_to_csv(results2, config_name=ckpt_path.stem, csv_path="mz_benchmark.csv")
     except Exception as e:
         print(f"Error saving results to CSV: {e}")
         print("Results:")
-        # print(results)
+        print(results)
         print(results2)
 
 
 if __name__ == "__main__":
     main()
-    print(5)
