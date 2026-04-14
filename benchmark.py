@@ -10,10 +10,10 @@ from datetime import datetime
 import torch
 from torch.utils.data import DataLoader
 
+from utils import compute_metrics
 from data.dataset import TiledDataset
 from data.transforms import build_transforms
 from training_module import SegmentationModule
-from utils import make_predictions, compute_metrics
 
 
 def load_data(h5_path, patch_size,  batch_size, transform=None, num_workers=0):
