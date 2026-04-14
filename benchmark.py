@@ -90,17 +90,24 @@ def evaluate_datasets(counts_list, dataset_names=None):
 
 def run_single_dataset(loader, model, h5_path):
     final_preds = make_predictions(loader, model)
+    print(20)
 
     counts = benchmark_counts(final_preds, h5_path)
+    print(21)
 
     # cleanup memory
     # loader.dataset.close()  # close h5 file
+    print(22)
     del final_preds
+    print(23)
     del loader
+    print(24)
 
+    print(25)
     torch.cuda.empty_cache()
+    print(26)
     gc.collect()
-
+    print(27)
     return counts
 
 def save_results_to_csv(results, config_name, csv_path="benchmark_results.csv"):
