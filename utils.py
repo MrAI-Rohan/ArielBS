@@ -44,15 +44,24 @@ def make_predictions(loader, model,):
         del images, pred
         torch.cuda.empty_cache()
 
+    print(30)
     preds = torch.cat(preds, dim=0)
+    print(31)
     final_preds = stitch_predictions(preds, patch_info, dataset.image_h, dataset.image_w, patch_size=dataset.patch_size)
+    print(32)
 
     for img_idx in final_preds:
         final_preds[img_idx] = (final_preds[img_idx] > 0.5).float()
+    print(33)
+    
 
+    print(34)
     del preds, patch_info, loader, dataset
+    print(35)
     torch.cuda.empty_cache()
+    print(36)
     gc.collect()
+    print(37)
 
     return final_preds
 
