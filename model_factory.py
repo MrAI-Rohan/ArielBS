@@ -20,7 +20,7 @@ def build_model(config):
             )
     
     elif model_cfg["name"] == "dlab":
-        return smp.DeeplabV3Plus(
+        return smp.DeepLabV3Plus(
                 encoder_name=model_cfg["encoder"],
                 encoder_weights="imagenet" if model_cfg.get("pretrained", False) else None,
                 in_channels=3,
