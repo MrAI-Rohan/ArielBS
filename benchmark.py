@@ -6,6 +6,7 @@ import pandas as pd
 from pathlib import Path
 from tqdm.auto import tqdm
 from datetime import datetime
+import time
 
 import torch
 from torch.utils.data import DataLoader
@@ -39,11 +40,14 @@ def make_predictions_and_count(loader, model, h5_path, patch_size):
         masks = f["masks"]
         with torch.no_grad():
             for batch in tqdm(loader, desc="Predicting patches", unit="batch", total=len(loader)):
+                t0 = time.time()
                 images, _, img_idx, y, x, pad_h, pad_w = batch
                 images = images.cuda(non_blocking=True)
+                t1 = time.time()
 
                 preds = torch.sigmoid(model(images)).cpu()
-
+                
+                t2 = time.time()
                 for i in range(preds.shape[0]):
                     img = img_idx[i].item()
                     yi = y[i].item()
@@ -82,6 +86,11 @@ def make_predictions_and_count(loader, model, h5_path, patch_size):
                     count_map[yi:yi+patch_size, xi:xi+patch_size] += 1
 
                 del images, preds
+                t3 = time.time()
+
+                extract_time += t1 - t0
+                infer_time += t2 - t1
+                stitch_time += t3 - t2
 
         # finalize last image
         if current_img is not None:
