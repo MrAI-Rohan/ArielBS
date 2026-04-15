@@ -17,7 +17,7 @@ from data.transforms import build_transforms
 from training_module import SegmentationModule
 
 
-def load_data(h5_path, patch_size,  batch_size, transform=None, num_workers=0):
+def load_data(h5_path, patch_size,  batch_size, transform=None, num_workers=2):
     dataset = TiledDataset(h5_path, patch_size=patch_size, transform=transform)
     dataloader = DataLoader(dataset, batch_size=batch_size, num_workers=num_workers, pin_memory=True)
     return dataloader
