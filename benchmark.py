@@ -225,8 +225,8 @@ def main():
     )
 
     results2 = evaluate_datasets( 
-        [counts_whu, counts_zanzibar],
-        dataset_names=["WHU Test", "Zanzibar"]
+        [counts_mas, counts_zanzibar],
+        dataset_names=["Massachusetts", "Zanzibar"]
     )
 
 
