@@ -36,6 +36,7 @@ def make_predictions_and_count(loader, model, h5_path, patch_size):
     count_map = None
 
     with h5py.File(h5_path, 'r') as f:
+        masks = f["masks"]
         with torch.no_grad():
             for batch in tqdm(loader, desc="Predicting patches", unit="batch", total=len(loader)):
                 images, _, img_idx, y, x, pad_h, pad_w = batch
@@ -54,7 +55,7 @@ def make_predictions_and_count(loader, model, h5_path, patch_size):
                         avg = avg[:orig_h, :orig_w]
                         pred_mask = (avg > 0.5)
 
-                        gt = torch.from_numpy(f['masks'][current_img]).float()
+                        gt = torch.from_numpy(masks[current_img]).float()
 
                         tp += ((pred_mask == 1) & (gt == 1)).sum().item()
                         fp += ((pred_mask == 1) & (gt == 0)).sum().item()
@@ -63,13 +64,12 @@ def make_predictions_and_count(loader, model, h5_path, patch_size):
 
                         # cleanup
                         del full_pred, count_map
-                        torch.cuda.empty_cache()
 
                     # initialize new image
                     if img != current_img:
                         current_img = img
 
-                        orig_h, orig_w = f['masks'][img].shape
+                        orig_h, orig_w = masks[img].shape
                         padded_h = orig_h + pad_h[i].item()
                         padded_w = orig_w + pad_w[i].item()
 
@@ -82,7 +82,6 @@ def make_predictions_and_count(loader, model, h5_path, patch_size):
                     count_map[yi:yi+patch_size, xi:xi+patch_size] += 1
 
                 del images, preds
-                torch.cuda.empty_cache()
 
         # finalize last image
         if current_img is not None:
@@ -90,12 +89,15 @@ def make_predictions_and_count(loader, model, h5_path, patch_size):
             avg = avg[:orig_h, :orig_w]
             pred_mask = (avg > 0.5)
 
-            gt = torch.from_numpy(f['masks'][current_img]).float()
+            gt = torch.from_numpy(masks[current_img]).float()
 
             tp += ((pred_mask == 1) & (gt == 1)).sum().item()
             fp += ((pred_mask == 1) & (gt == 0)).sum().item()
             fn += ((pred_mask == 0) & (gt == 1)).sum().item()
             tn += ((pred_mask == 0) & (gt == 0)).sum().item()
+        
+    del masks
+    gc.collect()
 
     return {"tp": tp, "fp": fp, "fn": fn, "tn": tn}
 
