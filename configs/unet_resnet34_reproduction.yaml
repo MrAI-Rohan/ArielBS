@@ -27,7 +27,7 @@ data:
   shuffle: true
 
 training:
-  epochs: 150
+  epochs: 250
   encoder_lr: 1e-4
   decoder_lr: 1e-4
   progress_bar: false
