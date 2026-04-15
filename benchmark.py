@@ -36,6 +36,8 @@ def make_predictions_and_count(loader, model, h5_path, patch_size):
     full_pred = None
     count_map = None
 
+    extract_time = infer_time = stitch_time = 0
+
     with h5py.File(h5_path, 'r') as f:
         masks = f["masks"]
         with torch.no_grad():
@@ -107,6 +109,7 @@ def make_predictions_and_count(loader, model, h5_path, patch_size):
         
     del masks
     gc.collect()
+    print(f"Extraction time: {extract_time:.2f}s, Inference time: {infer_time:.2f}s, Stitching time: {stitch_time:.2f}s")
 
     return {"tp": tp, "fp": fp, "fn": fn, "tn": tn}
 
