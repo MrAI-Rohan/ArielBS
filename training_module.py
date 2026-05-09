@@ -5,7 +5,7 @@ import torch.nn.functional as F
 import pytorch_lightning as pl
 
 from utils import convert_numerics
-from model_factory import build_model
+from models.model_factory import build_model
 from loss_functions import get_loss_function
 from optimizer_factory import build_optimizer
 from scheduler_factory import build_scheduler
