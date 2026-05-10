@@ -173,7 +173,7 @@ def replace_aspp_with_attentive(
     model: nn.Module,
     channels: int = 256,
     ca_reduction: int = 16,
-) -> nn.Module:
+    ) -> nn.Module:
     """
     Replaces the ASPP block inside an smp.DeepLabV3Plus model with AttentiveASPP.
 
