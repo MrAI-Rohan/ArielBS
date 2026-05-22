@@ -140,7 +140,7 @@ class AttentiveASPP(nn.Module):
             [ChannelAttention(channels, ca_reduction) for _ in range(num_branches)]
         )
 
-        # De[thwise aggragation
+        # Depthwise aggregation
         self.project = nn.Sequential(
             DepthwiseScaleAggregation(num_branches, channels),
             nn.BatchNorm2d(channels),
