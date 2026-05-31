@@ -16,8 +16,8 @@ model:
 data:
   dataset: reproduction
   patch_size: 224
-  train_batch_size: 64
-  val_batch_size: 128
+  train_batch_size: 32
+  val_batch_size: 64
   train_transform:
     resize: true
     hflip: 0.5
