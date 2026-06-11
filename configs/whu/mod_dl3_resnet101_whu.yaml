@@ -6,7 +6,7 @@ precision: 16
 platform: colab
 
 model:
-  name: mod_dl3
+  name: mod_dlab
   encoder: resnet101
   pretrained: true
 
