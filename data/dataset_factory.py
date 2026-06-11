@@ -16,7 +16,7 @@ def build_dataset(data_cfg, train_h5, val_h5,):
         train_dataset = WHUDataset(h5_path=train_h5,
                                     transform=train_transform,
                                     patch_size=data_cfg["patch_size"],
-                                    samples_per_epoch=data_cfg["data"]["samples_per_epoch"]
+                                    samples_per_epoch=data_cfg["samples_per_epoch"]
                                     )
         
         val_dataset = WHUValDataset(h5_path=val_h5,
