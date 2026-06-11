@@ -36,12 +36,13 @@ def build_transforms(data_cfg, mode):
         "grid_distortion": A.GridDistortion,
         "shift_scale_rotate": A.ShiftScaleRotate,
         "resize": A.Resize,
+        "center_crop": A.CenterCrop,
     }
 
     transforms = []
 
     for name, prob in transform_cfg.items():
-        if name == "resize" and prob:
+        if name in ["resize", "center_crop"] and prob:
             sz = data_cfg["patch_size"]
             transforms.append(transform_map[name](height=sz, width=sz, p=1.0))
         elif name in transform_map and isinstance(prob, (int, float)) and prob > 0:
