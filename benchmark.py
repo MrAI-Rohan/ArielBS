@@ -134,6 +134,9 @@ def evaluate_datasets(counts_list, dataset_names=None):
 
     # Per dataset metrics
     for name, counts in zip(dataset_names, counts_list):
+        if counts is None:
+            print(f"Warning: No counts for dataset {name}, skipping.")
+            continue
         tp, fp, fn, tn = counts["tp"], counts["fp"], counts["fn"], counts["tn"]
 
         results[name] = compute_metrics(tp, fp, fn, tn)
@@ -197,6 +200,8 @@ def main():
     parser.add_argument("--patch_size", type=int, required=True, help="Patch size for testing.")
     parser.add_argument("--batch_size", type=int, default=256, help="Batch size for testing.")
     parser.add_argument("--normalization", type=str, default="imagenet", help="Normalization method (imagenet, standard).")
+    parser.add_argument("--datasets", type=str, default="111", help="Which datasets to evaluate, show with a 3-digit boolean code,"
+                        " first digit for WHU Test, second forMassachusetts, third for Zanzibar. E.g. '110' means evaluate only WHU Test and Massachusetts.")
     args = parser.parse_args()
 
     h5_path = Path(args.h5_path)
@@ -212,46 +217,45 @@ def main():
     }
     transform = build_transforms(data_cfg, mode="val")
 
-    whu_test = load_data(h5_path/"whu_test.h5", patch_size=args.patch_size, 
-                        batch_size=args.batch_size, transform=transform)
-    counts_whu = make_predictions_and_count(whu_test, model, h5_path/"whu_test.h5", patch_size=args.patch_size)
-    del whu_test
-    torch.cuda.empty_cache()
-    gc.collect()
+    counts_whu = counts_mas = counts_zanzibar = None
 
-    mas = load_data(h5_path/"massachusetts.h5", patch_size=args.patch_size, 
-                        batch_size=args.batch_size, transform=transform)
-    counts_mas = make_predictions_and_count(mas, model, h5_path/"massachusetts.h5", patch_size=args.patch_size)
-    del mas
-    torch.cuda.empty_cache()
-    gc.collect()
+    if args.datasets[0] == "1":
+        whu_test = load_data(h5_path/"whu_test.h5", patch_size=args.patch_size, 
+                            batch_size=args.batch_size, transform=transform)
+        counts_whu = make_predictions_and_count(whu_test, model, h5_path/"whu_test.h5", patch_size=args.patch_size)
+        del whu_test
+        torch.cuda.empty_cache()
+        gc.collect()
 
-    zanzibar = load_data(h5_path/"zanzibar.h5", patch_size=args.patch_size, 
-                        batch_size=args.batch_size, transform=transform)
-    counts_zanzibar = make_predictions_and_count(zanzibar, model, h5_path/"zanzibar.h5", patch_size=args.patch_size)
-    del zanzibar
-    torch.cuda.empty_cache()
-    gc.collect()
+    if args.datasets[1] == "1":
+        mas = load_data(h5_path/"massachusetts.h5", patch_size=args.patch_size, 
+                            batch_size=args.batch_size, transform=transform)
+        counts_mas = make_predictions_and_count(mas, model, h5_path/"massachusetts.h5", patch_size=args.patch_size)
+        del mas
+        torch.cuda.empty_cache()
+        gc.collect()
 
+    if args.datasets[2] == "1":
+        zanzibar = load_data(h5_path/"zanzibar.h5", patch_size=args.patch_size, 
+                            batch_size=args.batch_size, transform=transform)
+        counts_zanzibar = make_predictions_and_count(zanzibar, model, h5_path/"zanzibar.h5", patch_size=args.patch_size)
+        del zanzibar
+        torch.cuda.empty_cache()
+        gc.collect()
+
+    dataset_names=["Massachusetts", "WHU Test", "Zanzibar"]
+    
     results = evaluate_datasets( 
         [counts_mas, counts_whu, counts_zanzibar],
         dataset_names=["Massachusetts", "WHU Test", "Zanzibar"]
     )
 
-    results2 = evaluate_datasets( 
-        [counts_mas, counts_zanzibar],
-        dataset_names=["Massachusetts", "Zanzibar"]
-    )
-
-
     try:
         save_results_to_csv(results, config_name=ckpt_path.stem, csv_path="benchmark_results.csv")
-        save_results_to_csv(results2, config_name=ckpt_path.stem, csv_path="mz_benchmark.csv")
     except Exception as e:
         print(f"Error saving results to CSV: {e}")
         print("Results:")
         print(results)
-        print(results2)
 
 
 if __name__ == "__main__":
